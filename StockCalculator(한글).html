@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>투자 리스크 계산기</title>
+</head>
+<body>
+    <h1>투자 리스크 계산기</h1>
+    <form id="calculator-form">
+        <label>현재 운용하는 총 자금 (TA): <input type="number" id="ta" required></label><br>
+        <label>감수할 리스크 (%): <input type="number" id="risk" required></label><br>
+        <label>진입가: <input type="number" id="entry-price" required></label><br>
+        <label>손절가: <input type="number" id="stop-price" required></label><br>
+        <label>레버리지: <input type="number" id="leverage"></label><br>
+        <label>투입 원금: <input type="number" id="capital"></label><br>
+        <button type="button" onclick="calculate()">계산하기</button>
+    </form>
+    <div id="results"></div>
+
+    <script>
+        function calculate() {
+            const ta = parseFloat(document.getElementById('ta').value);
+            const risk = parseFloat(document.getElementById('risk').value);
+            const entryPrice = parseFloat(document.getElementById('entry-price').value);
+            const stopPrice = parseFloat(document.getElementById('stop-price').value);
+            const leverage = parseFloat(document.getElementById('leverage').value);
+            const capital = parseFloat(document.getElementById('capital').value);
+
+            const mtl = ta * (risk / 100); // Calculate Max Tolerable Loss (MTS)
+            const sl = Math.abs((entryPrice - stopPrice) / entryPrice); // Remove percentage factor
+            const fund = mtl / sl;
+
+            let result = `최대 감수 손실 (MTS): ${mtl.toFixed(2)}<br>`;
+            result += `손실률 (SL): ${(sl * 100).toFixed(2)}%<br>`; // Display SL as percentage for clarity
+            result += `운용 금액: ${fund.toFixed(2)}<br>`;
+
+            if (!isNaN(leverage)) {
+                const calculatedCapital = fund / leverage;
+                result += `<b>투입 원금:</b> ${calculatedCapital.toFixed(2)}<br>`;
+            } else if (!isNaN(capital)) {
+                const calculatedLeverage = fund / capital;
+                result += `<b>레버리지:</b> ${calculatedLeverage.toFixed(2)}<br>`;
+            } else {
+                result += "<b>레버리지</b> 또는 <b>투입 원금</b>을 입력해주세요.";
+            }
+
+            document.getElementById('results').innerHTML = result;
+        }
+    </script>
+</body>
+</html>
